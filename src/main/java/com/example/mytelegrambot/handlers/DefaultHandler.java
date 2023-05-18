@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(5)
+@Order(4)
 public class DefaultHandler extends AbstractMessageHandler {
 
 	public DefaultHandler(TelegramBot telegramBot) {
