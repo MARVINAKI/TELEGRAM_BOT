@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(4)
+@Order(3)
 public class EchoHandler extends AbstractMessageHandler {
 
 	public EchoHandler(TelegramBot telegramBot) {
@@ -16,7 +16,7 @@ public class EchoHandler extends AbstractMessageHandler {
 
 	@Override
 	public boolean appliesTo(Update update) {
-		return update.message().text() != null && update.message().text().equalsIgnoreCase("Эхо");
+		return update.message().text() != null && update.message().text().replace(" ", "").equalsIgnoreCase("Эхо");
 	}
 
 	@Override

@@ -20,8 +20,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//@Component
-//@Order(2)
+@Component
+@Order(1)
 public class NotificationTaskHandler extends AbstractMessageHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
@@ -43,33 +43,30 @@ public class NotificationTaskHandler extends AbstractMessageHandler {
 	@Override
 	public boolean appliesTo(Update update) {
 		String text = update.message().text();
-		Matcher matcher = pattern.matcher(text);
-		LocalDateTime dateTime = parse(matcher.group(1));
-		return matcher.find() && !Objects.isNull(dateTime);
+		return text != null && text.toLowerCase().contains("задача");
 	}
 
 	@Override
 	public void handleUpdate(Update update) {
-		String text = update.message().text();
+		String text = update.message().text().substring(6).trim();
 		Long chatId = update.message().chat().id();
-		if (text != null) {
-			Matcher matcher = pattern.matcher(text);
-			if (matcher.find()) {
-				LocalDateTime dateTime = parse(matcher.group(1));
-				if (Objects.isNull(dateTime)) {
-					sendMessage(chatId, "Некорректный формат даты и/или времени, чёрт возьми!");
-				} else {
-					String textMessage = matcher.group(2);
-					NotificationTask notificationTask = new NotificationTask();
-					notificationTask.setChatId(chatId);
-					notificationTask.setMessage(textMessage);
-					notificationTask.setNotificationDateTime(dateTime);
-					notificationTaskService.save(notificationTask);
-				}
+		Matcher matcher = pattern.matcher(text);
+		if (matcher.find()) {
+			LocalDateTime dateTime = parse(matcher.group(1));
+			if (Objects.isNull(dateTime)) {
+				sendMessage(chatId, "Некорректный формат даты и/или времени, чёрт возьми!");
 			} else {
-				sendMessage(chatId,
-						"Некорректный формат сообщения, тысяча чертей!");
+				String textMessage = matcher.group(2);
+				NotificationTask notificationTask = new NotificationTask();
+				notificationTask.setChatId(chatId);
+				notificationTask.setMessage(textMessage);
+				notificationTask.setNotificationDateTime(dateTime);
+				notificationTaskService.save(notificationTask);
+				sendMessage(chatId, "Задача успешно создана и записана в БД! Круто!)");
 			}
+		} else {
+			sendMessage(chatId,
+					"Некорректный формат сообщения, тысяча чертей!");
 		}
 	}
 
